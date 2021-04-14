@@ -6,14 +6,13 @@ public class TextureDataEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        if (DrawDefaultInspector())
+        DrawDefaultInspector();
+
+        TextureData data = (TextureData)target;
+        if (GUILayout.Button("Update"))
         {
-            TextureData data = (TextureData)target;
-            if (GUILayout.Button("Update"))
-            {
-                data.NotifyOfUpdatedValues();
-                EditorUtility.SetDirty(target);
-            }
+            data.NotifyOfUpdatedValues();
+            EditorUtility.SetDirty(target);
         }
     }
 }

@@ -15,10 +15,8 @@ public class NoiseGeneratorEditor : Editor
     {
         if (texture != null) EditorGUILayout.ObjectField("Preview", texture, typeof(Texture2D), false);
 
-        if (DrawDefaultInspector())
-        {
-            UpdatePreview();
-        }
+        DrawDefaultInspector();
+        UpdatePreview();
     }
 
     void UpdatePreview()
