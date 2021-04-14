@@ -46,7 +46,7 @@ public class MapGenerator : MonoBehaviour
 
     public MapData GenerateMapData(Vector2 center)
     {
-        GameObject seedObject = GameObject.Find("Map Generator Seed");
+        GameObject seedObject = GameObject.Find(MapGeneratorSeed.objectName);
         if (seedObject != null)
         {
             MapGeneratorSeed mapGeneratorSeed = seedObject.GetComponent<MapGeneratorSeed>();

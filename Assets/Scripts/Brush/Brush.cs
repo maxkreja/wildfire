@@ -95,7 +95,9 @@ public class Brush : MonoBehaviour
                     Vector2 point = RandomPointInCircle(radius, new Vector2(transform.position.x, transform.position.z));
                     Vector3 position = new Vector3(point.x, transform.position.y + heightOffset, point.y);
 
-                    GameObject seedObject = Instantiate(new GameObject(), position, Quaternion.identity);
+                    GameObject seedObject = new GameObject();
+                    seedObject.transform.position = position;
+                    seedObject.transform.rotation = Quaternion.identity;
                     seedObject.transform.parent = plantParent.transform;
                     Seed seed = seedObject.AddComponent<Seed>();
 

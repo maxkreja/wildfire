@@ -29,11 +29,19 @@ public class MainMenuControls : MonoBehaviour
     [SerializeField]
     private GameObject panelCredits;
 
-    [SerializeField]
     private MapGeneratorSeed mapGeneratorSeed;
 
     void Start()
     {
+        GameObject seedObject = GameObject.Find(MapGeneratorSeed.objectName);
+        if (seedObject == null)
+        {
+            seedObject = new GameObject(MapGeneratorSeed.objectName);
+            mapGeneratorSeed = seedObject.AddComponent<MapGeneratorSeed>();
+            DontDestroyOnLoad(seedObject);
+        }
+        else mapGeneratorSeed = seedObject.GetComponent<MapGeneratorSeed>();
+
         buttonPlay.onClick.AddListener(OnPlayClick);
         buttonQuit.onClick.AddListener(OnQuitClick);
         buttonAbout.onClick.AddListener(OnAboutClick);

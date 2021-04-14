@@ -140,7 +140,10 @@ public class Seed : MonoBehaviour
     {
         if (seedVisual != null) Destroy(seedVisual);
 
-        plantObject = Instantiate(new GameObject(), transform.position, transform.rotation, transform);
+        plantObject = new GameObject();
+        plantObject.transform.position = transform.position;
+        plantObject.transform.rotation = transform.rotation;
+        plantObject.transform.parent = transform;
         plantObject.transform.localScale = Vector3.zero;
         plantObject.layer = plantLayerIndex;
         plantObject.AddComponent<MeshCollider>();

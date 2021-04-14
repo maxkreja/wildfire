@@ -4,12 +4,9 @@ using UnityEngine;
 
 public class MapGeneratorSeed : MonoBehaviour
 {
+    public static readonly string objectName = "Map Generator Seed";
+    [SerializeField]
     private int seed;
-
-    void Start()
-    {
-        DontDestroyOnLoad(gameObject);
-    }
 
     public void SetSeed(int seed)
     {
