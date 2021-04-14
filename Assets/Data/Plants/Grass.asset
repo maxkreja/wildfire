@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 557fd4d843894af4da6a59bc3de629c2, type: 3}
+  m_Name: Grass
+  m_EditorClassIdentifier: 
+  initialFuel: 6
+  fuelRandomness: 1
+  burnRate: 1
+  burnRateRandomness: 0.2
+  ignitionProbability: 0.3
+  minScale: 0.8
+  maxScale: 1.2
+  randomRotation: 1
+  waterRadius: 8
+  waterCheckRays: 16
+  waterCheckIterations: 8
+  ignitionDistance: 0.5
+  tickLength: 0.5
+  maxIgnitions: 3
+  growingSpeed: 5
+  keepAlive: 0
+  collisionMesh: {fileID: 7684625086359004581, guid: 807a150916c518346ab0935ea22547e7, type: 3}
+  emissionMesh: {fileID: 3930337919525614373, guid: a3b2c8dae35499345bc333f4719d8639, type: 3}
+  defaultPrefab: {fileID: 919132149155446097, guid: 807a150916c518346ab0935ea22547e7, type: 3}
+  burningPrefab: {fileID: 919132149155446097, guid: 807a150916c518346ab0935ea22547e7, type: 3}
+  depletedPrefab: {fileID: 919132149155446097, guid: 807a150916c518346ab0935ea22547e7, type: 3}
+  firePrefab: {fileID: 6009076165985648833, guid: 784f70ed169069d4b8d2e94c6c063929, type: 3}
+  seedPrefab: {fileID: 0}
+  icon: {fileID: 21300000, guid: 44b3bb0801efcd64cbe3aaf3685f93f4, type: 3}
+  instantIgnite: 0
+  isCigarette: 0

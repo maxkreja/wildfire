@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 557fd4d843894af4da6a59bc3de629c2, type: 3}
+  m_Name: Evergreen
+  m_EditorClassIdentifier: 
+  initialFuel: 10
+  fuelRandomness: 5
+  burnRate: 1.5
+  burnRateRandomness: 0.5
+  ignitionProbability: 0.2
+  minScale: 0.8
+  maxScale: 1.2
+  randomRotation: 1
+  waterRadius: 8
+  waterCheckRays: 16
+  waterCheckIterations: 8
+  ignitionDistance: 1.5
+  tickLength: 0.5
+  maxIgnitions: 3
+  growingSpeed: 10
+  keepAlive: 5
+  collisionMesh: {fileID: 6510082296287150243, guid: ec4a9bd731dd63b4abd267d997b9a2e4, type: 3}
+  emissionMesh: {fileID: 3930337919525614373, guid: 017c802e05ef65e43848f4e53e42c760, type: 3}
+  defaultPrefab: {fileID: 919132149155446097, guid: ec4a9bd731dd63b4abd267d997b9a2e4, type: 3}
+  burningPrefab: {fileID: 919132149155446097, guid: 1eb40cc32da9a2b4e96a39974764e0fc, type: 3}
+  depletedPrefab: {fileID: 919132149155446097, guid: c939fb92cef55c14da9b9e6069655669, type: 3}
+  firePrefab: {fileID: 6009076165985648833, guid: 784f70ed169069d4b8d2e94c6c063929, type: 3}
+  seedPrefab: {fileID: 919132149155446097, guid: 5c2e757e410872840b1c3df12b94e3aa, type: 3}
+  icon: {fileID: 21300000, guid: fcfa2a96f7dfd3c4e9c8db41df2a6f63, type: 3}
+  instantIgnite: 0
