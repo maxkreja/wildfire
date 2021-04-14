@@ -43,6 +43,8 @@ public class PlaybackControls : MonoBehaviour
         buttonQuit.onClick.AddListener(OnQuit);
         buttonQuitConfirm.onClick.AddListener(OnQuitConfirm);
         buttonQuitCancel.onClick.AddListener(OnQuitCancel);
+
+        Play();
     }
 
     private void Pause()
