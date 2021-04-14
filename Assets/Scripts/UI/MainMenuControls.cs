@@ -54,6 +54,7 @@ public class MainMenuControls : MonoBehaviour
 
     private void OnQuitClick()
     {
+        panelLoading.SetActive(true);
         Application.Quit();
     }
 

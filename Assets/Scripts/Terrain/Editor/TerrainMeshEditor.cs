@@ -6,12 +6,13 @@ public class TerrainMeshEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
-
-        if (GUILayout.Button("Generate"))
+        if (DrawDefaultInspector())
         {
-            TerrainMesh terrain = (TerrainMesh)target;
-            terrain.Generate();
+            if (GUILayout.Button("Generate"))
+            {
+                TerrainMesh terrain = (TerrainMesh)target;
+                terrain.Generate();
+            }
         }
     }
 }

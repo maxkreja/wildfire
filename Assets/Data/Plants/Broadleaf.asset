@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 557fd4d843894af4da6a59bc3de629c2, type: 3}
   m_Name: Broadleaf
   m_EditorClassIdentifier: 
-  initialFuel: 10
+  fuel: 10
   fuelRandomness: 5
   burnRate: 1
   burnRateRandomness: 0.5
@@ -37,3 +37,4 @@ MonoBehaviour:
   seedPrefab: {fileID: 919132149155446097, guid: e00ce51e3afa05e4baed602cd9529513, type: 3}
   icon: {fileID: 21300000, guid: 7db36a8fb6eca9146a8726bcd622ad33, type: 3}
   instantIgnite: 0
+  isCigarette: 0

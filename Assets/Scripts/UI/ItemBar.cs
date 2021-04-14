@@ -38,7 +38,7 @@ public class ItemBar : MonoBehaviour
             child.GetComponent<Image>().sprite = icons[i];
 
             int index = i;
-            item.GetComponent<Button>().onClick.AddListener(() => onItemClicked(index));
+            item.GetComponent<Button>().onClick.AddListener(() => OnItemClicked(index));
             item.transform.SetParent(itemBar.transform, false);
 
             items[i] = item;
@@ -52,20 +52,14 @@ public class ItemBar : MonoBehaviour
         int index = brush.GetSelectedPlant();
         for (int i = 0; i < items.Length; i++)
         {
-            if (i == index)
-            {
-                items[i].GetComponent<Image>().color = itemActive;
-            }
-            else
-            {
-                items[i].GetComponent<Image>().color = itemInactive;
-            }
+            if (i == index) items[i].GetComponent<Image>().color = itemActive;
+            else items[i].GetComponent<Image>().color = itemInactive;
         }
     }
 
-    private void onItemClicked(int index)
+    private void OnItemClicked(int index)
     {
-        brush.SelectPlant(index);
+        brush.SetSelectedPlant(index);
         UpdateBar();
     }
 }

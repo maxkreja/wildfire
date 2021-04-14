@@ -4,90 +4,62 @@ using System.Linq;
 [RequireComponent(typeof(MeshCollider))]
 public class Plant : MonoBehaviour
 {
-    private PlantInstance.PlantState currentState;
-    private PlantInstance.PlantState previousState;
-
-    private MeshCollider meshCollider;
-    private GameObject prefab;
-
-    private Fire fire;
-
-    private float ignitionDelta;
-    private float keepAliveDelta;
-
     private LayerData layerData;
-
     private PlantData plantData;
     private PlantInstance plantInstance;
 
-    private InitState initState = InitState.Default;
+    private PlantState currentState;
+    private PlantState previousState;
+
+    private MeshCollider meshCollider;
+    private GameObject currentMesh;
+
+    private Fire fire;
+
+    private float ignitionDeltaTime;
+    private float keepAliveDeltaTime;
+
+    private bool initialized;
 
     void Update()
     {
-        if (initState == InitState.Initialized && currentState == PlantInstance.PlantState.Default)
+        if (initialized)
         {
-            if (plantData.instantIgnite) Ignite(true);
-        }
+            if (currentState == PlantState.Default && plantData.instantIgnite)
+                Ignite(true);
 
-        if (initState == InitState.Initialize)
-        {
-            currentState = PlantInstance.PlantState.Default;
-            previousState = currentState;
-
-            meshCollider = GetComponent<MeshCollider>();
-            meshCollider.sharedMesh = plantData.collisionMesh;
-
-            GameObject fireObject = Instantiate(plantData.firePrefab, transform.position, transform.rotation);
-            fireObject.transform.parent = transform;
-            fireObject.transform.localScale = Vector3.one;
-            fire = fireObject.GetComponent<Fire>();
-
-            fire.SetMesh(plantData.emissionMesh);
-
-            initState = InitState.Initialized;
-
-            updateDisplayMesh();
-        }
-
-        if (currentState != previousState)
-        {
-            previousState = currentState;
-            updateDisplayMesh();
-        }
-
-        if (currentState == PlantInstance.PlantState.Depleted)
-        {
-            keepAliveDelta += Time.deltaTime;
-            if (keepAliveDelta > plantData.keepAlive)
+            if (currentState == PlantState.Depleted)
             {
-                Destroy(gameObject);
+                keepAliveDeltaTime += Time.deltaTime;
+                if (keepAliveDeltaTime > plantData.keepAlive)
+                {
+                    Destroy(gameObject);
+                }
+            }
+
+            if (currentState != previousState)
+            {
+                previousState = currentState;
+                UpdateDisplayMesh();
             }
         }
     }
 
     void FixedUpdate()
     {
-        if (initState == InitState.Initialized)
+        if (initialized)
         {
-            if (currentState == PlantInstance.PlantState.Burning)
+            if (currentState == PlantState.Burning)
             {
-                ignitionDelta = ignitionDelta + Time.deltaTime;
-                if (ignitionDelta > plantData.tickLength)
+                ignitionDeltaTime = ignitionDeltaTime + Time.deltaTime;
+                if (ignitionDeltaTime > plantData.tickLength)
                 {
-                    ignitionDelta = 0;
-                    ignitePlants();
+                    ignitionDeltaTime = 0;
+                    IgnitePlants();
                 }
 
                 currentState = plantInstance.ConsumeFuel(Time.deltaTime);
             }
-        }
-    }
-
-    void OnDrawGizmos()
-    {
-        if (initialized())
-        {
-            Gizmos.DrawWireSphere(transform.position, plantData.ignitionDistance);
         }
     }
 
@@ -96,7 +68,22 @@ public class Plant : MonoBehaviour
         this.plantInstance = plantInstance;
         this.plantData = this.plantInstance.GetPlantData();
         this.layerData = layerData;
-        initState = InitState.Initialize;
+
+        currentState = PlantState.Default;
+        previousState = currentState;
+
+        meshCollider = GetComponent<MeshCollider>();
+        meshCollider.sharedMesh = plantData.collisionMesh;
+
+        GameObject fireObject = Instantiate(plantData.firePrefab, transform.position, transform.rotation);
+        fireObject.transform.parent = transform;
+        fireObject.transform.localScale = Vector3.one;
+        fire = fireObject.GetComponent<Fire>();
+
+        fire.SetMesh(plantData.emissionMesh);
+
+        UpdateDisplayMesh();
+        initialized = true;
     }
 
     public void Ignite(bool force = false)
@@ -109,32 +96,31 @@ public class Plant : MonoBehaviour
         return !plantData.instantIgnite;
     }
 
-    private void updateDisplayMesh()
+    private void UpdateDisplayMesh()
     {
-        Destroy(prefab);
+        Destroy(currentMesh);
 
         switch (currentState)
         {
-            case PlantInstance.PlantState.Default:
-                prefab = Instantiate(plantData.defaultPrefab, transform.position, transform.rotation);
+            case PlantState.Default:
+                currentMesh = Instantiate(plantData.defaultPrefab, transform.position, transform.rotation, transform);
                 fire.Extinguish();
                 break;
-            case PlantInstance.PlantState.Burning:
-                prefab = Instantiate(plantData.burningPrefab, transform.position, transform.rotation);
+            case PlantState.Burning:
+                currentMesh = Instantiate(plantData.burningPrefab, transform.position, transform.rotation, transform);
                 fire.Ignite();
                 break;
-            case PlantInstance.PlantState.Depleted:
-                prefab = Instantiate(plantData.depletedPrefab, transform.position, transform.rotation);
+            case PlantState.Depleted:
+                currentMesh = Instantiate(plantData.depletedPrefab, transform.position, transform.rotation, transform);
                 fire.Extinguish();
                 meshCollider.enabled = plantData.isCigarette || false;
                 break;
         }
 
-        prefab.transform.parent = transform;
-        prefab.transform.localScale = Vector3.one;
+        currentMesh.transform.localScale = Vector3.one;
     }
 
-    private void ignitePlants()
+    private void IgnitePlants()
     {
         meshCollider.enabled = false;
         Collider[] colliders = Physics.OverlapSphere(transform.position, plantData.ignitionDistance, layerData.plants.value);
@@ -154,24 +140,9 @@ public class Plant : MonoBehaviour
                 ignitions++;
             }
 
-            if (ignitions == plantData.maxIgnitions)
-            {
-                break;
-            }
+            if (ignitions == plantData.maxIgnitions) break;
         }
 
         meshCollider.enabled = true;
-    }
-
-    private bool initialized()
-    {
-        return plantData != null && plantInstance != null && layerData != null;
-    }
-
-    private enum InitState
-    {
-        Default,
-        Initialize,
-        Initialized,
     }
 }

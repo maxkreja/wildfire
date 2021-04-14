@@ -5,7 +5,7 @@ public class PlantData : ScriptableObject
 {
     [SerializeField]
     [Range(0, 10)]
-    private float initialFuel;
+    private float fuel;
     [SerializeField]
     [Range(0, 10)]
     private float fuelRandomness;
@@ -51,7 +51,7 @@ public class PlantData : ScriptableObject
 
     public float GetInitialFuel()
     {
-        return initialFuel + Random.Range(-fuelRandomness, fuelRandomness);
+        return fuel + Random.Range(-fuelRandomness, fuelRandomness);
     }
 
     public float GetBurnRate()
@@ -67,8 +67,8 @@ public class PlantData : ScriptableObject
         }
         else
         {
-            float a = initialFuel - fuelRandomness;
-            float b = initialFuel + fuelRandomness;
+            float a = this.fuel - fuelRandomness;
+            float b = this.fuel + fuelRandomness;
 
             return (maxScale - minScale) * ((fuel - a) / (b - a)) + minScale;
         }

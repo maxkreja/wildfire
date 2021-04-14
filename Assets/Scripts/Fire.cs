@@ -45,7 +45,7 @@ public class Fire : MonoBehaviour
 
     public void Ignite()
     {
-        if (componentsFound())
+        if (ComponentsFound())
         {
             ParticleSystem.ShapeModule fireShape = fire.shape;
             fireShape.mesh = fireMesh;
@@ -67,7 +67,7 @@ public class Fire : MonoBehaviour
 
     public void Extinguish()
     {
-        if (componentsFound())
+        if (ComponentsFound())
         {
             fire.Stop();
             smoke.Stop();
@@ -85,7 +85,7 @@ public class Fire : MonoBehaviour
         fireMesh = mesh;
     }
 
-    private bool componentsFound()
+    private bool ComponentsFound()
     {
         return fire != null && smoke != null;
     }

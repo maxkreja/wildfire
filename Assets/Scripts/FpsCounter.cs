@@ -7,7 +7,6 @@ public class FpsCounter : MonoBehaviour
     private Text text;
     private float deltaTime;
 
-
     void Start()
     {
         text = GetComponent<Text>();

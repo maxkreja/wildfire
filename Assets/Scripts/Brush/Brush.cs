@@ -1,20 +1,20 @@
 using UnityEngine;
 
-// [RequireComponent(typeof(MeshRenderer))]
 public class Brush : MonoBehaviour
 {
-    [SerializeField]
-    private Indicator indicator;
-
     [SerializeField]
     private LayerData layerData;
     [SerializeField]
     private TextureData textureData;
 
     [SerializeField]
+    private Indicator indicator;
+
+    [SerializeField]
     private float movementDelta = 0.01f;
     [SerializeField]
     private float heightOffset;
+
     [SerializeField]
     private float radius;
     [SerializeField]
@@ -23,6 +23,7 @@ public class Brush : MonoBehaviour
     private float maxRadius;
     [SerializeField]
     private float radiusIncrement;
+
     [SerializeField]
     private int density;
     [SerializeField]
@@ -32,100 +33,48 @@ public class Brush : MonoBehaviour
 
     [SerializeField]
     private GameObject plantParent;
-    [SerializeField]
-    private GameObject seedPreset;
 
     [SerializeField]
     private PlantData[] plantDatas;
     private int selectedPlant = 0;
 
     private bool brushEnabled = false;
-
-    // private MeshRenderer meshRenderer;
     private Vector3 previousPosition;
 
     void Start()
     {
-        // meshRenderer = GetComponent<MeshRenderer>();
-        // meshRenderer.enabled = false;
         previousPosition = Vector3.zero;
         UpdateDensity(density);
         UpdateRadius(radius);
     }
 
-    void Update()
-    {
-        // transform.localScale = new Vector3(radius * 2, transform.localScale.y, radius * 2);
-    }
-
     public void UpdatePosition(Vector3 position, Vector3 normal)
     {
         transform.position = position;
-        // transform.rotation = Quaternion.FromToRotation(transform.up, normal) * transform.rotation;
-    }
-
-    void UpdateRadius(float radius)
-    {
-        this.radius = radius;
-        indicator.SetRadius(radius);
-    }
-
-    void UpdateDensity(int density)
-    {
-        this.density = density;
-        indicator.SetDensity(density);
     }
 
     public void IncreaseRadius()
     {
-        float target = radius + radiusIncrement;
-        if (target > maxRadius)
-        {
-            if (radius != maxRadius)
-            {
-                UpdateRadius(maxRadius);
-            }
-        }
-        else UpdateRadius(target);
+        float target = Mathf.Min(radius + radiusIncrement, maxRadius);
+        UpdateRadius(target);
     }
 
     public void DecreaseRadius()
     {
-        float target = radius - radiusIncrement;
-        if (target < minRadius)
-        {
-            if (radius != minRadius)
-            {
-                UpdateRadius(minRadius);
-            }
-        }
-        else UpdateRadius(target);
+        float target = Mathf.Max(radius - radiusIncrement, minRadius);
+        UpdateRadius(target);
     }
 
     public void IncreaseDensity()
     {
-        int target = density + 1;
-        if (target > maxDensity)
-        {
-            if (density != maxDensity)
-            {
-                UpdateDensity(maxDensity);
-            }
-        }
-        else UpdateDensity(target);
+        int target = Mathf.Min(density + 1, maxDensity);
+        UpdateDensity(target);
     }
 
     public void DecreaseDensity()
     {
-        int target = density - 1;
-        if (target < minDensity)
-        {
-            if (density != minDensity)
-            {
-                UpdateDensity(minDensity);
-            }
-        }
-        else UpdateDensity(target);
+        int target = Mathf.Max(density - 1, minDensity);
+        UpdateDensity(target);
     }
 
     public void SetBrushEnabled(bool enable)
@@ -136,34 +85,20 @@ public class Brush : MonoBehaviour
 
     public void Paint()
     {
-        if (Vector3.Distance(previousPosition, transform.position) > movementDelta)
+        if (brushEnabled && Vector3.Distance(previousPosition, transform.position) > movementDelta)
         {
             previousPosition = transform.position;
-
             if (selectedPlant >= 0 && selectedPlant < plantDatas.Length)
             {
-                GameObject[] seeds = new GameObject[density];
                 for (int i = 0; i < density; i++)
                 {
-                    float r = radius * Mathf.Sqrt(Random.value);
-                    float theta = Random.value * 2 * Mathf.PI;
+                    Vector2 point = RandomPointInCircle(radius, new Vector2(transform.position.x, transform.position.z));
+                    Vector3 position = new Vector3(point.x, transform.position.y + heightOffset, point.y);
 
-                    float x = transform.position.x + r * Mathf.Cos(theta);
-                    float z = transform.position.z + r * Mathf.Sin(theta);
+                    GameObject seedObject = Instantiate(new GameObject(), position, Quaternion.identity);
+                    seedObject.transform.parent = plantParent.transform;
+                    Seed seed = seedObject.AddComponent<Seed>();
 
-                    Vector3 position = new Vector3(x, transform.position.y + heightOffset, z);
-                    seeds[i] = Instantiate(seedPreset, position, Quaternion.identity);
-
-                    if (plantParent != null)
-                    {
-                        seeds[i].transform.parent = plantParent.transform;
-                    }
-                }
-
-                int offset = Random.Range(0, seeds.Length);
-                for (int i = 0; i < seeds.Length; i++)
-                {
-                    Seed seed = seeds[(i + offset) % seeds.Length].GetComponent<Seed>();
                     seed.Grow(new PlantInstance(plantDatas[selectedPlant]), layerData, textureData);
                 }
             }
@@ -175,36 +110,9 @@ public class Brush : MonoBehaviour
         return selectedPlant;
     }
 
-    public void NextPlant()
+    public void SetSelectedPlant(int index)
     {
-        if (selectedPlant + 1 == plantDatas.Length)
-        {
-            selectedPlant = 0;
-        }
-        else
-        {
-            selectedPlant = selectedPlant + 1;
-        }
-    }
-
-    public void PreviousPlant()
-    {
-        if (selectedPlant == 0)
-        {
-            selectedPlant = plantDatas.Length - 1;
-        }
-        else
-        {
-            selectedPlant = selectedPlant - 1;
-        }
-    }
-
-    public void SelectPlant(int index)
-    {
-        if (index >= 0 && index < plantDatas.Length)
-        {
-            selectedPlant = index;
-        }
+        if (index >= 0 && index < plantDatas.Length) selectedPlant = index;
     }
 
     public int GetPlantCount()
@@ -221,5 +129,28 @@ public class Brush : MonoBehaviour
         }
 
         return sprites;
+    }
+
+    private void UpdateRadius(float radius)
+    {
+        this.radius = radius;
+        indicator.SetRadius(radius);
+    }
+
+    private void UpdateDensity(int density)
+    {
+        this.density = density;
+        indicator.SetDensity(density);
+    }
+
+    private Vector2 RandomPointInCircle(float radius, Vector2 center)
+    {
+        float r = radius * Mathf.Sqrt(Random.value);
+        float theta = Random.value * 2 * Mathf.PI;
+
+        float x = center.x + r * Mathf.Cos(theta);
+        float y = center.y + r * Mathf.Sin(theta);
+
+        return new Vector2(x, y);
     }
 }

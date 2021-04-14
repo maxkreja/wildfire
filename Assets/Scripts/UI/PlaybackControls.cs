@@ -74,6 +74,7 @@ public class PlaybackControls : MonoBehaviour
 
     private void OnQuit()
     {
+        Pause();
         panelQuitConfirm.SetActive(true);
     }
 
@@ -85,6 +86,7 @@ public class PlaybackControls : MonoBehaviour
 
     private void OnQuitCancel()
     {
+        Play();
         panelQuitConfirm.SetActive(false);
     }
 }

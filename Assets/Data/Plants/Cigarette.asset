@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 557fd4d843894af4da6a59bc3de629c2, type: 3}
   m_Name: Cigarette
   m_EditorClassIdentifier: 
-  initialFuel: 10
+  fuel: 10
   fuelRandomness: 0
   burnRate: 1
   burnRateRandomness: 0

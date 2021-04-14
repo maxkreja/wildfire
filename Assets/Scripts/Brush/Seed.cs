@@ -3,37 +3,30 @@ using UnityEngine;
 public class Seed : MonoBehaviour
 {
     private LayerData layerData;
+    private int plantLayerIndex;
 
     private State state;
-    private int plantLayer;
 
+    private Plant plant;
     private PlantData plantData;
     private PlantInstance plantInstance;
 
-    private Plant plant;
     private GameObject plantObject;
     private GameObject seedVisual;
 
     private float growDelay;
-    private float delta = 0;
+    private float deltaTime = 0;
 
     void Update()
     {
         switch (state)
         {
-            case State.Growing:
-                instantiatePlant();
+            case State.GrowingAllowed:
+                InstantiatePlant();
                 state = State.GrowingVisually;
                 break;
             case State.GrowingVisually:
-                plantObject.transform.localScale = plant.transform.localScale + Vector3.one * Time.deltaTime * plantData.growingSpeed;
-                if (plant.transform.localScale.x >= 1)
-                {
-                    plant.transform.localScale = Vector3.one;
-                    state = State.Grown;
-                    plant.transform.parent = transform.parent;
-                    Destroy(gameObject);
-                }
+                UpdatePlantScale();
                 break;
         }
     }
@@ -43,8 +36,8 @@ public class Seed : MonoBehaviour
         switch (state)
         {
             case State.Seed:
-                delta += Time.deltaTime;
-                if (delta > growDelay)
+                deltaTime += Time.deltaTime;
+                if (deltaTime > growDelay)
                 {
                     Rigidbody rigidbody = gameObject.AddComponent<Rigidbody>();
                     MeshCollider collider = gameObject.AddComponent<MeshCollider>();
@@ -59,15 +52,12 @@ public class Seed : MonoBehaviour
                     state = State.TryGrowing;
                 }
                 break;
-            case State.Grown:
-                Destroy(GetComponent<MeshCollider>()); // disable mesh collider so rays collide with plant
-                break;
-            case State.Growing:
+            case State.GrowingAllowed:
                 GetComponent<MeshCollider>().convex = false; // make collider non convex for accurate collisions
                 break;
             case State.TryGrowing:
                 Destroy(GetComponent<Rigidbody>());
-                state = State.Growing;
+                state = State.GrowingAllowed;
                 break;
         }
     }
@@ -77,7 +67,7 @@ public class Seed : MonoBehaviour
         if (state == State.TryGrowing)
         {
             int layer = collision.gameObject.layer;
-            if (layer == plantLayer)
+            if (layer == plantLayerIndex)
             {
                 Destroy(gameObject);
             }
@@ -90,7 +80,7 @@ public class Seed : MonoBehaviour
         this.layerData = layerData;
 
         plantData = this.plantInstance.GetPlantData();
-        plantLayer = (int)Mathf.Log(layerData.plants.value, 2);
+        plantLayerIndex = LayerData.MaskToIndex(layerData.plants);
         growDelay = Random.Range(0f, 0.5f);
 
         RaycastHit hit;
@@ -106,7 +96,7 @@ public class Seed : MonoBehaviour
                     transform.RotateAround(transform.position, transform.up, Random.Range(0f, 360f));
                 }
 
-                gameObject.layer = plantLayer;
+                gameObject.layer = plantLayerIndex;
 
                 if (plantData.seedPrefab != null)
                 {
@@ -119,7 +109,7 @@ public class Seed : MonoBehaviour
 
                 if (!plantData.instantIgnite && !plantData.isCigarette)
                 {
-                    setupSaturation();
+                    SetupSaturation();
                 }
 
                 state = State.Seed;
@@ -135,33 +125,38 @@ public class Seed : MonoBehaviour
         }
     }
 
-    private void instantiatePlant()
+    private void UpdatePlantScale()
     {
-        if (seedVisual != null)
+        plantObject.transform.localScale = plant.transform.localScale + Vector3.one * Time.deltaTime * plantData.growingSpeed;
+        if (plant.transform.localScale.x >= 1)
         {
-            Destroy(seedVisual);
+            plant.transform.localScale = Vector3.one;
+            plant.transform.parent = transform.parent;
+            Destroy(gameObject);
         }
+    }
 
-        plantObject = new GameObject();
-        plantObject.layer = plantLayer;
-        plantObject.AddComponent<MeshCollider>();
+    private void InstantiatePlant()
+    {
+        if (seedVisual != null) Destroy(seedVisual);
 
-        float scale = plantInstance.GetScale();
-        plantObject.transform.position = transform.position;
+        plantObject = Instantiate(new GameObject(), transform.position, transform.rotation, transform);
         plantObject.transform.localScale = Vector3.zero;
-        plantObject.transform.rotation = transform.rotation;
-        plantObject.transform.parent = transform;
-
+        plantObject.layer = plantLayerIndex;
+        plantObject.AddComponent<MeshCollider>();
         plant = plantObject.AddComponent<Plant>();
         plant.Initialize(plantInstance, layerData);
     }
 
-    private void setupSaturation()
+    private void SetupSaturation()
     {
         Vector3 origin = transform.position + Vector3.up;
+
         int iterations = plantData.waterCheckIterations;
         int rays = plantData.waterCheckRays;
-        int waterLayer = (int)Mathf.Log(layerData.water, 2);
+
+        int waterLayerIndex = LayerData.MaskToIndex(layerData.water);
+
         float radius = plantData.waterRadius;
         float increment = radius / iterations;
         float radians = (360 * Mathf.Deg2Rad) / rays;
@@ -170,7 +165,7 @@ public class Seed : MonoBehaviour
         for (int i = 0; i < iterations; i++)
         {
             float offset = increment + i * increment;
-            bool exit = false;
+            bool breakEarly = false;
 
             for (int j = 0; j < rays; j++)
             {
@@ -178,40 +173,45 @@ public class Seed : MonoBehaviour
                 float y = Mathf.Sin(j * radians);
 
                 Vector3 target = new Vector3(origin.x + x * offset, transform.position.y, origin.z + y * offset);
-                Vector3 direction = (target - origin).normalized;
+                Vector3 direction = target - origin;
 
-                RaycastHit hit;
-                if (Physics.Raycast(origin, direction, out hit, radius, layerData.terrain | layerData.water))
+                float rayDistance = GetRayDistance(origin, direction, waterLayerIndex);
+                if (rayDistance < distance)
                 {
-                    if (hit.transform.gameObject.layer == waterLayer)
-                    {
-                        Vector2 a = new Vector2(origin.x, origin.y);
-                        Vector2 b = new Vector2(hit.point.x, hit.point.y);
-                        float pointDistance = Vector2.Distance(a, b);
-                        if (pointDistance < distance)
-                        {
-                            distance = pointDistance;
-                            exit = true;
-                        }
-                    }
+                    distance = rayDistance;
+                    breakEarly = true;
                 }
             }
 
-            if (exit)
-            {
-                break;
-            }
+            if (breakEarly) break;
         }
 
         plantInstance.UpdateSaturation(distance);
+    }
+
+    private float GetRayDistance(Vector3 origin, Vector3 direction, int waterLayerIndex)
+    {
+        float distance = plantData.waterRadius;
+
+        RaycastHit hit;
+        if (Physics.Raycast(origin, direction, out hit, Mathf.Infinity, layerData.terrain | layerData.water))
+        {
+            if (hit.transform.gameObject.layer == waterLayerIndex)
+            {
+                Vector2 a = new Vector2(origin.x, origin.y);
+                Vector2 b = new Vector2(hit.point.x, hit.point.y);
+                distance = Vector2.Distance(a, b); ;
+            }
+        }
+
+        return distance;
     }
 
     private enum State
     {
         Seed,
         TryGrowing,
-        Growing,
-        GrowingVisually,
-        Grown
+        GrowingAllowed,
+        GrowingVisually
     }
 }

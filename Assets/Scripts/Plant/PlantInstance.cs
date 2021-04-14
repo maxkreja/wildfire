@@ -49,10 +49,7 @@ public class PlantInstance
 
         if (state == PlantState.Default)
         {
-            if (force)
-            {
-                state = PlantState.Burning;
-            }
+            if (force) state = PlantState.Burning;
             else
             {
                 float probability = data.ignitionProbability * (1f - saturation);
@@ -72,11 +69,11 @@ public class PlantInstance
     {
         saturation = 1 - waterDistance / data.waterRadius;
     }
+}
 
-    public enum PlantState
-    {
-        Default,
-        Burning,
-        Depleted
-    }
+public enum PlantState
+{
+    Default,
+    Burning,
+    Depleted
 }

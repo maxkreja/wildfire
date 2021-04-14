@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 557fd4d843894af4da6a59bc3de629c2, type: 3}
   m_Name: Evergreen
   m_EditorClassIdentifier: 
-  initialFuel: 10
+  fuel: 10
   fuelRandomness: 5
   burnRate: 1.5
   burnRateRandomness: 0.5
@@ -37,3 +37,4 @@ MonoBehaviour:
   seedPrefab: {fileID: 919132149155446097, guid: 5c2e757e410872840b1c3df12b94e3aa, type: 3}
   icon: {fileID: 21300000, guid: fcfa2a96f7dfd3c4e9c8db41df2a6f63, type: 3}
   instantIgnite: 0
+  isCigarette: 0
