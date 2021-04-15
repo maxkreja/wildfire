@@ -8,9 +8,6 @@ public class Plant : MonoBehaviour
     private PlantData plantData;
     private PlantInstance plantInstance;
 
-    private PlantState currentState;
-    private PlantState previousState;
-
     private MeshCollider meshCollider;
     private GameObject currentMesh;
 
@@ -25,10 +22,11 @@ public class Plant : MonoBehaviour
     {
         if (initialized)
         {
-            if (currentState == PlantState.Default && plantData.instantIgnite)
+            PlantState state = plantInstance.GetCurrentState();
+            if (state == PlantState.Default && plantData.instantIgnite)
                 Ignite(true);
 
-            if (currentState == PlantState.Depleted)
+            if (state == PlantState.Depleted)
             {
                 keepAliveDeltaTime += Time.deltaTime;
                 if (keepAliveDeltaTime > plantData.keepAlive)
@@ -37,11 +35,7 @@ public class Plant : MonoBehaviour
                 }
             }
 
-            if (currentState != previousState)
-            {
-                previousState = currentState;
-                UpdateDisplayMesh();
-            }
+            if (plantInstance.DidStateChange()) UpdateDisplayMesh();
         }
     }
 
@@ -49,7 +43,7 @@ public class Plant : MonoBehaviour
     {
         if (initialized)
         {
-            if (currentState == PlantState.Burning)
+            if (plantInstance.GetCurrentState() == PlantState.Burning)
             {
                 ignitionDeltaTime = ignitionDeltaTime + Time.deltaTime;
                 if (ignitionDeltaTime > plantData.tickLength)
@@ -58,7 +52,7 @@ public class Plant : MonoBehaviour
                     IgnitePlants();
                 }
 
-                currentState = plantInstance.ConsumeFuel(Time.deltaTime);
+                plantInstance.ConsumeFuel(Time.deltaTime);
             }
         }
     }
@@ -68,9 +62,6 @@ public class Plant : MonoBehaviour
         this.plantInstance = plantInstance;
         this.plantData = this.plantInstance.GetPlantData();
         this.layerData = layerData;
-
-        currentState = PlantState.Default;
-        previousState = currentState;
 
         meshCollider = GetComponent<MeshCollider>();
         meshCollider.sharedMesh = plantData.collisionMesh;
@@ -88,7 +79,7 @@ public class Plant : MonoBehaviour
 
     public void Ignite(bool force = false)
     {
-        currentState = plantInstance.Ignite(force);
+        plantInstance.Ignite(force);
     }
 
     public bool IsIgnitable()
@@ -100,7 +91,7 @@ public class Plant : MonoBehaviour
     {
         Destroy(currentMesh);
 
-        switch (currentState)
+        switch (plantInstance.GetCurrentState())
         {
             case PlantState.Default:
                 currentMesh = Instantiate(plantData.defaultPrefab, transform.position, transform.rotation, transform);

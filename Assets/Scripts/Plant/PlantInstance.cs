@@ -9,7 +9,8 @@ public class PlantInstance
     private float burnRate;
     private float saturation = 0;
 
-    private PlantState state;
+    private PlantState currentState;
+    private PlantState previousState;
 
     public PlantInstance(PlantData plantData)
     {
@@ -19,7 +20,8 @@ public class PlantInstance
         scale = plantData.GetScale(fuel);
         burnRate = plantData.GetBurnRate();
 
-        state = PlantState.Default;
+        currentState = PlantState.Default;
+        previousState = currentState;
     }
 
     public PlantData GetPlantData()
@@ -32,24 +34,22 @@ public class PlantInstance
         return scale;
     }
 
-    public PlantState ConsumeFuel(float deltaTime)
+    public void ConsumeFuel(float deltaTime)
     {
         fuel = fuel - (burnRate * deltaTime);
         if (fuel <= 0)
         {
             fuel = 0;
-            state = PlantState.Depleted;
+            currentState = PlantState.Depleted;
         }
-
-        return state;
     }
 
-    public PlantState Ignite(bool force = false)
+    public void Ignite(bool force = false)
     {
 
-        if (state == PlantState.Default)
+        if (currentState == PlantState.Default)
         {
-            if (force) state = PlantState.Burning;
+            if (force) currentState = PlantState.Burning;
             else
             {
                 float probability = data.ignitionProbability * (1f - saturation);
@@ -57,17 +57,27 @@ public class PlantInstance
 
                 if (random <= probability)
                 {
-                    state = PlantState.Burning;
+                    currentState = PlantState.Burning;
                 }
             }
         }
-
-        return state;
     }
 
     public void UpdateSaturation(float waterDistance)
     {
         saturation = 1 - waterDistance / data.waterRadius;
+    }
+
+    public PlantState GetCurrentState()
+    {
+        return currentState;
+    }
+
+    public bool DidStateChange()
+    {
+        bool result = currentState != previousState;
+        if (result) previousState = currentState;
+        return result;
     }
 }
 
