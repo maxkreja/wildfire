@@ -145,7 +145,7 @@ public class Brush : MonoBehaviour
         indicator.SetDensity(density);
     }
 
-    private Vector2 RandomPointInCircle(float radius, Vector2 center)
+    private static Vector2 RandomPointInCircle(float radius, Vector2 center)
     {
         float r = radius * Mathf.Sqrt(Random.value);
         float theta = Random.value * 2 * Mathf.PI;
