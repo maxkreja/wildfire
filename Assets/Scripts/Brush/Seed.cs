@@ -164,7 +164,7 @@ public class Seed : MonoBehaviour
         float increment = radius / iterations;
         float radians = (360 * Mathf.Deg2Rad) / rays;
 
-        float distance = plantData.waterRadius;
+        float distance = radius;
         for (int i = 0; i < iterations; i++)
         {
             float offset = increment + i * increment;
