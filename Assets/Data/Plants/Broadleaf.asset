@@ -21,8 +21,8 @@ MonoBehaviour:
   maxScale: 1.2
   randomRotation: 1
   waterRadius: 8
-  waterCheckRays: 16
-  waterCheckIterations: 8
+  waterCheckRays: 12
+  waterCheckIterations: 6
   ignitionDistance: 1.2
   tickLength: 0.5
   maxIgnitions: 2
